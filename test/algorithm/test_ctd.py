@@ -11,8 +11,8 @@ import pandas as pd
 import copy
 import scipy
 import unittest
+import tracemalloc
 
-from memory_profiler import memory_usage
 from src.util.draw import *
 from src.algorithm.ctd import *
 from src.util.console import *
@@ -95,19 +95,20 @@ class TestCTD(unittest.TestCase):
 
         print(f"Running test for graph \'{relative_path(data_folder)}/graph_5_nodes.csv\'")
 
+        tracemalloc.start()
+
         # Call CTD function
         DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities, set(), df)
+
+        first_size, first_peak = tracemalloc.get_traced_memory()
+        print(f"{first_size=}, {first_peak=}")
+        tracemalloc.stop()
 
         # Calculate execution time
         execution_time = timeit.timeit(
             lambda: DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities_test, set(), df),
             number=NUMBER_OF_EXECUTIONS)
         print(f'Average execution time: {execution_time / NUMBER_OF_EXECUTIONS}s')
-
-        # Calculate memory usage
-        print(
-            f"Memory usage: "
-            f"{memory_usage((DIFFUSE_PROB_RECURSIVE, (STARTING_PROBABILITY, sn_init, probabilities_test, set(), df)), max_usage=True, interval=.0001)}MB")
 
         # Call R function
         with localconverter(ro.default_converter + pandas2ri.converter):  # Convert data
@@ -140,19 +141,20 @@ class TestCTD(unittest.TestCase):
 
         print(f"Running test for graph \'{relative_path(data_folder)}/graph_5_nodes.csv\'")
 
+        tracemalloc.start()
+
         # Call CTD function
         DIFFUSE_PROB_ITERATIVE(STARTING_PROBABILITY, sn_init, probabilities, df)
+
+        first_size, first_peak = tracemalloc.get_traced_memory()
+        print(f"{first_size=}, {first_peak=}")
+        tracemalloc.stop()
 
         # Calculate execution time
         execution_time = timeit.timeit(
             lambda: DIFFUSE_PROB_ITERATIVE(STARTING_PROBABILITY, sn_init, probabilities_test, df),
             number=NUMBER_OF_EXECUTIONS)
         print(f'Average execution time: {execution_time / NUMBER_OF_EXECUTIONS}s')
-
-        # Calculate memory usage
-        print(
-            f"Memory usage: "
-            f"{memory_usage((DIFFUSE_PROB_ITERATIVE, (STARTING_PROBABILITY, sn_init, probabilities_test, df)), max_usage=True, interval=.0001)}MB")
 
         # Call R function
         with localconverter(ro.default_converter + pandas2ri.converter):  # Convert data
@@ -185,19 +187,20 @@ class TestCTD(unittest.TestCase):
 
         print(f"Running test for graph \'{relative_path(data_folder)}/graph_10_nodes.csv\'")
 
+        tracemalloc.start()
+
         # Call CTD function
         DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities, set(), df)
+
+        first_size, first_peak = tracemalloc.get_traced_memory()
+        print(f"{first_size=}, {first_peak=}")
+        tracemalloc.stop()
 
         # Calculate execution time
         execution_time = timeit.timeit(
             lambda: DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities_test, set(), df),
             number=NUMBER_OF_EXECUTIONS)
         print(f'Average execution time: {execution_time / NUMBER_OF_EXECUTIONS}s')
-
-        # Calculate memory usage
-        print(
-            f"Memory usage: "
-            f"{memory_usage((DIFFUSE_PROB_RECURSIVE, (STARTING_PROBABILITY, sn_init, probabilities_test, set(), df)), max_usage=True, interval=.0001)}MB")
 
         # Call R function
         with localconverter(ro.default_converter + pandas2ri.converter):  # Convert data
@@ -230,19 +233,20 @@ class TestCTD(unittest.TestCase):
 
         print(f"Running test for graph \'{relative_path(data_folder)}/graph_10_nodes.csv\'")
 
+        tracemalloc.start()
+
         # Call CTD function
         DIFFUSE_PROB_ITERATIVE(STARTING_PROBABILITY, sn_init, probabilities, df)
+
+        first_size, first_peak = tracemalloc.get_traced_memory()
+        print(f"{first_size=}, {first_peak=}")
+        tracemalloc.stop()
 
         # Calculate execution time
         execution_time = timeit.timeit(
             lambda: DIFFUSE_PROB_ITERATIVE(STARTING_PROBABILITY, sn_init, probabilities_test, df),
             number=NUMBER_OF_EXECUTIONS)
         print(f'Average execution time: {execution_time / NUMBER_OF_EXECUTIONS}s')
-
-        # Calculate memory usage
-        print(
-            f"Memory usage: "
-            f"{memory_usage((DIFFUSE_PROB_ITERATIVE, (STARTING_PROBABILITY, sn_init, probabilities_test, df)), max_usage=True, interval=.0001)}MB")
 
         # Call R function
         with localconverter(ro.default_converter + pandas2ri.converter):  # Convert data
@@ -287,9 +291,15 @@ class TestCTD(unittest.TestCase):
                     # Recursive
                     write_normal_message("Recursive algorithm ==============================")
 
+                    tracemalloc.start()
+
                     # Call CTD function
                     DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities, set(), df)
                     recursive_response = probabilities
+
+                    first_size, first_peak = tracemalloc.get_traced_memory()
+                    print(f"{first_size=}, {first_peak=}")
+                    tracemalloc.stop()
 
                     # Calculate execution time
                     execution_time = timeit.timeit(
@@ -302,20 +312,21 @@ class TestCTD(unittest.TestCase):
                         graph = nx.from_pandas_adjacency(df)
                         draw_graph(graph, probabilities, f"recursive_{node_count}_nodes_{edge_probability}_probability")
 
-                    # Calculate memory usage
-                    write_normal_message(
-                        f"Memory usage: "
-                        f"{memory_usage((DIFFUSE_PROB_RECURSIVE, (STARTING_PROBABILITY, sn_init, probabilities_test, set(), df)), max_usage=True, interval=.0001)}MB")
-
                     for i in range(node_count):
                         probabilities[i] = 0
 
                     # Iterative
                     write_normal_message("Iterative algorithm ==============================")
 
+                    tracemalloc.start()
+
                     # Call CTD function
                     DIFFUSE_PROB_ITERATIVE(STARTING_PROBABILITY, sn_init, probabilities, df)
                     iterative_response = probabilities
+
+                    second_size, second_peak = tracemalloc.get_traced_memory()
+                    print(f"{second_size=}, {second_peak=}")
+                    tracemalloc.stop()
 
                     # Calculate execution time
                     execution_time = timeit.timeit(
@@ -326,11 +337,6 @@ class TestCTD(unittest.TestCase):
                     # Draw
                     if node_count == NUMBER_OF_NODES[0]:
                         draw_graph(graph, probabilities, f"iterative_{node_count}_nodes_{edge_probability}_probability")
-
-                    # Calculate memory usage
-                    write_normal_message(
-                        f"Memory usage: "
-                        f"{memory_usage((DIFFUSE_PROB_ITERATIVE, (STARTING_PROBABILITY, sn_init, probabilities_test, df)), max_usage=True, interval=.0001)}MB")
 
                     # Call R function
                     with localconverter(ro.default_converter + pandas2ri.converter):  # Convert data
