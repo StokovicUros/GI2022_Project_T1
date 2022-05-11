@@ -13,7 +13,6 @@ import scipy
 import unittest
 import tracemalloc
 
-from memory_profiler import memory_usage
 from src.util.draw import *
 from src.algorithm.ctd import *
 from src.util.console import *
