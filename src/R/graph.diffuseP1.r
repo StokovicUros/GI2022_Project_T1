@@ -58,11 +58,12 @@
 #'                                     thresholdDiff=0.01, adj_mat, TRUE)
 graph.diffuseP1 <- function(p1, sn, thresholdDiff, adj_mat, G = NULL, vNodes = vector(), verbose = FALSE,
                             out_dir = "", r_level = 1, coords = NULL) {
-  # print(sn-1)
   if (is.null(G)) {
     G <- vector(mode = "list", length = ncol(adj_mat))
     names(G) <- colnames(adj_mat)
     G <- lapply(G, function(i) i[[1]] <- 0)
+    G[[sn]][[1]] <- p1
+    vNodes <- c(vNodes, (sn - 1))
   }
   nTabs <- paste(rep("   ", r_level - 1), collapse = "") # for verbose stmts
   if (verbose == TRUE) {
@@ -80,15 +81,15 @@ graph.diffuseP1 <- function(p1, sn, thresholdDiff, adj_mat, G = NULL, vNodes = v
       if (verbose == TRUE) {
         print(sprintf("%schild#%d %s got %f", nTabs, z, snUvNbors[z], i.prob)) }
 
-      nNbors <- G[colnames(adj_mat2[which(abs(adj_mat2[, snUvNbors[z]]) > 0)])]
-      if (length(nNbors) > 0 &&
+      nNbors <- colnames(adj_mat2[which(abs(adj_mat2[, snUvNbors[z]]) > 0)])
+      hisUnvisitedNeighbours <- nNbors[!(nNbors %in% vNodes)]
+      if (length(hisUnvisitedNeighbours) > 0 &&
         i.prob / 2 > thresholdDiff &&
         ((length(vNodes) + 1) < length(G))) {
         G[[snUvNbors[z]]] <- G[[snUvNbors[z]]] - i.prob / 2
         if (verbose == TRUE) {
           print(sprintf("%stook %f from child#%d:%s to send",
                         nTabs, i.prob / 2, z, snUvNbors[z])) }
-        # print("Call")
         G <- graph.diffuseP1(i.prob / 2, snUvNbors[z], thresholdDiff,
                              adj_mat, G, c(vNodes, snUvNbors[z]), verbose = verbose, out_dir,
                              r_level + 1, coords)

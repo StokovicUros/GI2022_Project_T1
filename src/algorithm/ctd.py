@@ -26,13 +26,14 @@ def DIFFUSE_PROB_RECURSIVE(p1, sn, G, vN, adj_mat, alpha=0.5):
     for node in UNsn:
         inherited_prob = multiplier * adj_mat.iloc[sn, node]
         G[node] += inherited_prob
-        if inherited_prob * alpha > THRESHOLD_DIFF:
+        if inherited_prob * alpha > THRESHOLD_DIFF and len(
+                set(filter(lambda x: adj_mat.iloc[node, x] > 0, u_vN))) > 0:
             G[node] -= inherited_prob * alpha
             DIFFUSE_PROB_RECURSIVE(inherited_prob * alpha, node, G, vN.union({node}), adj_mat)
 
 
 def DIFFUSE_PROB_ITERATIVE(p1, sn, G, adj_mat, alpha=0.5):
-    queue = [(sn, p1, set())]
+    queue = [(sn, p1, {sn})]
 
     while len(queue) > 0:
         current_node, current_probability, vN = queue.pop(0)
@@ -54,6 +55,7 @@ def DIFFUSE_PROB_ITERATIVE(p1, sn, G, adj_mat, alpha=0.5):
         for node in UNsn:
             inherited_prob = current_probability * (adj_mat.iloc[current_node, node] / sum_weights)
             G[node] += inherited_prob
-            if inherited_prob * alpha > THRESHOLD_DIFF:
+            if inherited_prob * alpha > THRESHOLD_DIFF and len(
+                    set(filter(lambda x: adj_mat.iloc[node, x] > 0, u_vN))) > 0:
                 G[node] -= inherited_prob * alpha
                 queue.append((node, inherited_prob * alpha, vN.union({node})))

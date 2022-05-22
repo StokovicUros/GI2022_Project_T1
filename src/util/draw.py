@@ -13,7 +13,7 @@ from src.util.path import get_project_root
 import os.path
 
 
-def draw_graph(graph, prob, name):
+def draw_graph(graph, prob, name, startNode):
     pos = nx.spring_layout(graph)
 
     edge_x = []
@@ -62,7 +62,10 @@ def draw_graph(graph, prob, name):
     node_probs = []
     node_text = []
     for node, probability in prob.items():
-        node_probs.append(probability)
+        if startNode == node:
+            node_probs.append(1)
+        else:
+            node_probs.append(probability)
         node_text.append('Probability: ' + str(probability))
 
     node_trace.marker.color = node_probs

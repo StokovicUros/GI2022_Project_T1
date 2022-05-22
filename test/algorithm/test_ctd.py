@@ -90,6 +90,10 @@ class TestCTD(unittest.TestCase):
         probabilities = {}
         for i in range(5):
             probabilities[i] = 0
+        probabilities[sn_init] = STARTING_PROBABILITY
+
+        starting_set = set()
+        starting_set.add(sn_init)
 
         probabilities_test = copy.deepcopy(probabilities)
 
@@ -98,7 +102,7 @@ class TestCTD(unittest.TestCase):
         tracemalloc.start()
 
         # Call CTD function
-        DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities, set(), df)
+        DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities, starting_set, df)
 
         first_size, first_peak = tracemalloc.get_traced_memory()
         print(f"{first_size=}, {first_peak=}")
@@ -106,7 +110,7 @@ class TestCTD(unittest.TestCase):
 
         # Calculate execution time
         execution_time = timeit.timeit(
-            lambda: DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities_test, set(), df),
+            lambda: DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities_test, starting_set, df),
             number=NUMBER_OF_EXECUTIONS)
         print(f'Average execution time: {execution_time / NUMBER_OF_EXECUTIONS}s')
 
@@ -136,6 +140,7 @@ class TestCTD(unittest.TestCase):
         probabilities = {}
         for i in range(5):
             probabilities[i] = 0
+        probabilities[sn_init] = STARTING_PROBABILITY
 
         probabilities_test = copy.deepcopy(probabilities)
 
@@ -182,6 +187,10 @@ class TestCTD(unittest.TestCase):
         probabilities = {}
         for i in range(10):
             probabilities[i] = 0
+        probabilities[sn_init] = STARTING_PROBABILITY
+
+        starting_set = set()
+        starting_set.add(sn_init)
 
         probabilities_test = copy.deepcopy(probabilities)
 
@@ -190,7 +199,7 @@ class TestCTD(unittest.TestCase):
         tracemalloc.start()
 
         # Call CTD function
-        DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities, set(), df)
+        DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities, starting_set, df)
 
         first_size, first_peak = tracemalloc.get_traced_memory()
         print(f"{first_size=}, {first_peak=}")
@@ -198,7 +207,7 @@ class TestCTD(unittest.TestCase):
 
         # Calculate execution time
         execution_time = timeit.timeit(
-            lambda: DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities_test, set(), df),
+            lambda: DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities_test, starting_set, df),
             number=NUMBER_OF_EXECUTIONS)
         print(f'Average execution time: {execution_time / NUMBER_OF_EXECUTIONS}s')
 
@@ -228,6 +237,7 @@ class TestCTD(unittest.TestCase):
         probabilities = {}
         for i in range(10):
             probabilities[i] = 0
+        probabilities[sn_init] = STARTING_PROBABILITY
 
         probabilities_test = copy.deepcopy(probabilities)
 
@@ -267,8 +277,9 @@ class TestCTD(unittest.TestCase):
                 with self.subTest(f"{node_count}_nodes_{edge_probability}_prob"):
                     # Read graph
                     try:
-                        df = pd.read_csv(f"{data_folder}/graph_{node_count}_nodes_{edge_probability}_probability.csv",
-                                         dtype=int)
+                        df = pd.read_csv(
+                            f"{data_folder}/graph_{node_count}_nodes_{edge_probability}_probability.csv",
+                            dtype=int)
                     except FileNotFoundError:
                         write_warning_message(
                             f"Test not found: \'{relative_path(data_folder)}/graph_{node_count}_nodes_{edge_probability}_probability.csv\'")
@@ -282,6 +293,10 @@ class TestCTD(unittest.TestCase):
                     probabilities = {}
                     for i in range(node_count):
                         probabilities[i] = 0
+                    probabilities[sn_init] = STARTING_PROBABILITY
+
+                    starting_set = set()
+                    starting_set.add(sn_init)
 
                     probabilities_test = copy.deepcopy(probabilities)
 
@@ -294,26 +309,26 @@ class TestCTD(unittest.TestCase):
                     tracemalloc.start()
 
                     # Call CTD function
-                    DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities, set(), df)
-                    recursive_response = probabilities
+                    DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities, starting_set, df)
 
                     first_size, first_peak = tracemalloc.get_traced_memory()
                     print(f"{first_size=}, {first_peak=}")
                     tracemalloc.stop()
 
+                    recursive_response = copy.deepcopy(probabilities)
+
                     # Calculate execution time
                     execution_time = timeit.timeit(
-                        lambda: DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities_test, set(), df),
+                        lambda: DIFFUSE_PROB_RECURSIVE(STARTING_PROBABILITY, sn_init, probabilities_test,
+                                                       starting_set,
+                                                       df),
                         number=NUMBER_OF_EXECUTIONS)
                     print(f'Average execution time: {execution_time / NUMBER_OF_EXECUTIONS}s')
 
-                    # Draw
-                    if node_count == NUMBER_OF_NODES[0]:
-                        graph = nx.from_pandas_adjacency(df)
-                        draw_graph(graph, probabilities, f"recursive_{node_count}_nodes_{edge_probability}_probability")
-
                     for i in range(node_count):
                         probabilities[i] = 0
+                    probabilities[sn_init] = STARTING_PROBABILITY
+                    probabilities_test = copy.deepcopy(probabilities)
 
                     # Iterative
                     write_normal_message("Iterative algorithm ==============================")
@@ -322,21 +337,18 @@ class TestCTD(unittest.TestCase):
 
                     # Call CTD function
                     DIFFUSE_PROB_ITERATIVE(STARTING_PROBABILITY, sn_init, probabilities, df)
-                    iterative_response = probabilities
 
                     second_size, second_peak = tracemalloc.get_traced_memory()
                     print(f"{second_size=}, {second_peak=}")
                     tracemalloc.stop()
+
+                    iterative_response = copy.deepcopy(probabilities)
 
                     # Calculate execution time
                     execution_time = timeit.timeit(
                         lambda: DIFFUSE_PROB_ITERATIVE(STARTING_PROBABILITY, sn_init, probabilities_test, df),
                         number=NUMBER_OF_EXECUTIONS)
                     print(f'Average execution time: {execution_time / NUMBER_OF_EXECUTIONS}s')
-
-                    # Draw
-                    if node_count == NUMBER_OF_NODES[0]:
-                        draw_graph(graph, probabilities, f"iterative_{node_count}_nodes_{edge_probability}_probability")
 
                     # Call R function
                     with localconverter(ro.default_converter + pandas2ri.converter):  # Convert data
@@ -347,6 +359,11 @@ class TestCTD(unittest.TestCase):
                     check_equal(self, recursive_response, response)
                     check_equal(self, iterative_response, response)
                     write_success_message("\nPASS!")
+                    # Draw
+                    if node_count == NUMBER_OF_NODES[0]:
+                        graph = nx.from_pandas_adjacency(df)
+                        draw_graph(graph, probabilities, f"{node_count}_nodes_{edge_probability}_probability",
+                                   sn_init)
                     write_normal_message("--------------------------------------------")
 
 
