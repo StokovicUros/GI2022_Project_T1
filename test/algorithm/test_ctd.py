@@ -363,7 +363,7 @@ class TestCTD(unittest.TestCase):
                     if node_count == NUMBER_OF_NODES[0]:
                         graph = nx.from_pandas_adjacency(df)
                         draw_graph(graph, probabilities, f"{node_count}_nodes_{edge_probability}_probability",
-                                   sn_init)
+                                   sn_init, STARTING_PROBABILITY)
                     write_normal_message("--------------------------------------------")
 
 
